@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>The Science of Well-Being: Rewirement Workbook</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+        }
+        .animate-float { animation: float 10s ease-in-out infinite; }
+        .animate-pulse-slow { animation: pulse-slow 8s ease-in-out infinite; }
+        
+        /* Print Styles */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            input, textarea { border: 1px solid #ccc !important; background: white !important; color: black !important; }
+        }
+        .print-only { display: none; }
+        
+        /* Scrollbar hiding for theme menu */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-sans overflow-x-hidden min-h-screen transition-colors duration-500">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONS (SVG Components) ---
+        const IconPrinter = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        );
+        const IconChevronDown = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>
+        );
+        const IconChevronUp = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"></polyline></svg>
+        );
+        const IconCheckCircle = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        );
+        const IconActivity = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        );
+        const IconSun = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        );
+        const IconHeart = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        );
+        const IconSmile = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        );
+        const IconMoon = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        );
+        const IconBookOpen = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        );
+        const IconPalette = ({ size = 24, className }) => (
+             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>
+        );
+        const IconInfo = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        );
+
+
+        // --- THEMES CONFIG ---
+        const THEMES = {
+            starry: {
+                name: "Starry Night",
+                bg: "bg-[#0f172a]",
+                text: "text-white",
+                mutedText: "text-blue-100/70",
+                blob1: "bg-purple-600/30",
+                blob2: "bg-blue-600/30",
+                blob3: "bg-pink-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-white/20",
+                inputBg: "bg-black/20",
+                accent: "from-purple-200 via-pink-200 to-blue-200",
+                iconBg: "from-purple-500/20 to-pink-500/20",
+                checkColor: "bg-gradient-to-br from-green-400 to-emerald-600 shadow-[0_0_15px_rgba(52,211,153,0.4)]"
+            },
+            miami: {
+                name: "Neon Miami",
+                bg: "bg-slate-900",
+                text: "text-cyan-50",
+                mutedText: "text-cyan-200/70",
+                blob1: "bg-cyan-500/30",
+                blob2: "bg-pink-500/30",
+                blob3: "bg-purple-500/20",
+                cardBg: "bg-white/5",
+                cardBorder: "border-cyan-500/30",
+                inputBg: "bg-slate-800/50",
+                accent: "from-cyan-300 via-pink-300 to-yellow-200",
+                iconBg: "from-cyan-500/20 to-pink-500/20",
+                checkColor: "bg-gradient-to-br from-cyan-400 to-blue-500 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+            },
+            forest: {
+                name: "Deep Forest",
+                bg: "bg-[#052e16]",
+                text: "text-green-50",
+                mutedText: "text-green-200/70",
+                blob1: "bg-emerald-600/30",
+                blob2: "bg-lime-600/30",
+                blob3: "bg-teal-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-green-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-emerald-200 via-lime-200 to-green-100",
+                iconBg: "from-emerald-500/20 to-lime-500/20",
+                checkColor: "bg-gradient-to-br from-lime-400 to-green-600 shadow-[0_0_15px_rgba(132,204,22,0.4)]"
+            },
+            sunset: {
+                name: "Golden Sunset",
+                bg: "bg-[#4a0404]",
+                text: "text-orange-50",
+                mutedText: "text-orange-200/70",
+                blob1: "bg-orange-600/30",
+                blob2: "bg-red-600/30",
+                blob3: "bg-amber-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-orange-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-orange-200 via-red-200 to-amber-200",
+                iconBg: "from-orange-500/20 to-red-500/20",
+                checkColor: "bg-gradient-to-br from-amber-400 to-orange-600 shadow-[0_0_15px_rgba(251,191,36,0.4)]"
+            },
+            oceanic: {
+                name: "Oceanic",
+                bg: "bg-[#082f49]", // sky-950
+                text: "text-sky-50",
+                mutedText: "text-sky-200/70",
+                blob1: "bg-cyan-600/30",
+                blob2: "bg-blue-600/30",
+                blob3: "bg-sky-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-cyan-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-cyan-200 via-sky-200 to-blue-200",
+                iconBg: "from-cyan-500/20 to-blue-500/20",
+                checkColor: "bg-gradient-to-br from-cyan-400 to-blue-600 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+            },
+            amethyst: {
+                name: "Amethyst",
+                bg: "bg-[#2e1065]", // violet-950
+                text: "text-purple-50",
+                mutedText: "text-purple-200/70",
+                blob1: "bg-purple-600/30",
+                blob2: "bg-fuchsia-600/30",
+                blob3: "bg-violet-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-purple-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-purple-200 via-fuchsia-200 to-violet-200",
+                iconBg: "from-purple-500/20 to-fuchsia-500/20",
+                checkColor: "bg-gradient-to-br from-fuchsia-400 to-purple-600 shadow-[0_0_15px_rgba(216,180,254,0.4)]"
+            },
+            rose: {
+                name: "Rose Garden",
+                bg: "bg-[#4c0519]", // rose-950
+                text: "text-rose-50",
+                mutedText: "text-rose-200/70",
+                blob1: "bg-rose-600/30",
+                blob2: "bg-pink-600/30",
+                blob3: "bg-red-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-rose-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-rose-200 via-pink-200 to-red-200",
+                iconBg: "from-rose-500/20 to-pink-500/20",
+                checkColor: "bg-gradient-to-br from-rose-400 to-pink-600 shadow-[0_0_15px_rgba(251,113,133,0.4)]"
+            },
+            toxic: {
+                name: "Toxic",
+                bg: "bg-black",
+                text: "text-lime-50",
+                mutedText: "text-lime-400/70",
+                blob1: "bg-lime-600/30",
+                blob2: "bg-green-600/30",
+                blob3: "bg-emerald-500/20",
+                cardBg: "bg-green-900/20",
+                cardBorder: "border-lime-500/30",
+                inputBg: "bg-black",
+                accent: "from-lime-400 via-green-400 to-emerald-400",
+                iconBg: "from-lime-500/20 to-green-500/20",
+                checkColor: "bg-gradient-to-br from-lime-400 to-green-600 shadow-[0_0_15px_rgba(132,204,22,0.6)]"
+            },
+            aurora: {
+                name: "Aurora",
+                bg: "bg-[#042f2e]", // teal-950
+                text: "text-teal-50",
+                mutedText: "text-teal-200/70",
+                blob1: "bg-teal-600/30",
+                blob2: "bg-indigo-600/30",
+                blob3: "bg-emerald-500/20",
+                cardBg: "bg-white/10",
+                cardBorder: "border-teal-400/20",
+                inputBg: "bg-black/20",
+                accent: "from-teal-200 via-indigo-200 to-emerald-200",
+                iconBg: "from-teal-500/20 to-indigo-500/20",
+                checkColor: "bg-gradient-to-br from-teal-400 to-indigo-500 shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+            },
+            eclipse: {
+                name: "Eclipse",
+                bg: "bg-neutral-950",
+                text: "text-neutral-50",
+                mutedText: "text-neutral-400/70",
+                blob1: "bg-neutral-800/50",
+                blob2: "bg-neutral-700/30",
+                blob3: "bg-white/10",
+                cardBg: "bg-neutral-900/50",
+                cardBorder: "border-neutral-700",
+                inputBg: "bg-black",
+                accent: "from-white via-neutral-200 to-neutral-400",
+                iconBg: "from-neutral-700 to-neutral-800",
+                checkColor: "bg-white shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+            }
+        };
+
+        // --- NOTES CONTENT (From PDF) ---
+        const NOTES = {
+            week1: `### Measure Your Happiness 📊
+• **Go back to the course** under "Your Rewirements for this Week" for resources on how to measure your happiness using validated psychological instruments.
+• By measuring your happiness at the start of the course, your score will act as a **baseline measurement** to compare to later on.
+• **Option 3:** If you do not want to take surveys online, answer this: *On a scale of 1-5, how happy are you with your life right now?*
+
+### Use Your Signature Strengths 💪
+• **Discover:** Go back to the course to find resources on how to determine your signature strengths.
+• **Action:** Once discovered, try to use your top strengths in **new ways every day** for a week.`,
+
+            week2: `### Savoring 🍦
+• **Definition:** Savoring is the act of stepping outside of an experience to review and appreciate it. It intensifies and lengthens positive emotions.
+• **Challenge:** Pick **one experience to truly savor each day**. (e.g., a shower, a delicious meal, a walk).
+• **Techniques:** - Share the experience with another person.
+  - Think about how lucky you are to enjoy it.
+  - Keep a souvenir or photo.
+  - Stay in the present moment.
+
+### Daily Gratitude Journal 🙏
+• **Research:** Taking time to experience gratitude can make you happier and healthier.
+• **Challenge:** Take 5-10 minutes each night to write down **five things for which you are grateful**.
+• **Tip:** Focus on them and actually write them down. Be mindful of what you are writing.`,
+
+            week3: `### Random Acts of Kindness 💖
+• **Insight:** Happy people are motivated to do kind things for others.
+• **Challenge:** Perform **seven acts of kindness** beyond what you normally do this week.
+• **Examples:** Help a colleague, give to a cause, say something kind to a stranger, write a thank you note, give blood.
+
+### Social Connection 🤝
+• **Insight:** Happy people spend more time with others. Talking to a stranger can boost mood more than expected.
+• **Challenge:** Make **one new social connection per day**.
+• **Examples:** 5-minute chat on public transport, ask a coworker about their day, chat to a barista.
+• **Bonus:** At least once this week, take a whole hour to connect with someone you care about.`,
+
+            week4: `### Exercise 🏃‍♀️
+• **Goal:** At least **30 minutes a day** of movement.
+• **Why:** Boosts mood and health.
+• **Ideas:** Gym, online yoga class, dancing to cheesy pop songs.
+• **Note:** Notice how much better you feel after moving.
+
+### Sleep 😴
+• **Goal:** Aim for **7+ hours of sleep** for at least 4 nights this week.
+• **Why:** Sleep improves mood physically and mentally.
+• **Hygiene:** No devices before bed, avoid caffeine/alcohol on these days.`,
+
+            week5: `### Meditate 🧘‍♂️
+• **Goal:** **10 minutes per day** of meditation.
+• **Definition:** Intentionally turning attention away from distracting thoughts toward a single point of reference (breath, sensation, etc.).
+• **Benefits:** Positive mood, concentration, social connection.
+• **Note:** It's about building a skill, not just the session itself.
+
+### Gratitude Letter & Visit 💌
+• **Challenge:** Write a letter of gratitude to someone who made a big difference in your life but whom you never properly thanked.
+• **Length:** At least 300 words.
+• **The Visit:** Deliver it to them. Ideally, read it to them in person (or phone/Skype). 
+• **Impact:** One of the most powerful tools for increasing happiness.`,
+
+            final: `### Final Rewirement Challenge (Weeks 7-10) 🏆
+**The Goal:** Pick **one** rewirement that resonated with you and practice it in earnest for 4 weeks to make it a long-term habit.
+
+### Pro Tips for Success:
+• **Week 7:** Make a plan! (What, When, Where, Who).
+• **Week 8:** Socially commit. Tell someone about the change you are trying to make.
+• **Week 9:** Design your environment. Remove barriers and add cues to help you succeed.
+• **Week 10:** Have a growth mindset. Focus on progress, not perfection.`
+        };
+
+
+        // --- COMPONENTS ---
+
+        const WeekCard = ({ title, subtitle, children, icon: Icon, isOpen, onToggle, theme, noteKey }) => {
+            const [activeTab, setActiveTab] = useState('track'); // 'track' or 'notes'
+
+            const parseContent = (text) => {
+                // Split by bold (**...**) and italic (*...*) markers
+                const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+                return parts.map((part, index) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={index} className={`font-bold ${theme.text}`}>{part.slice(2, -2)}</strong>;
+                    }
+                    if (part.startsWith('*') && part.endsWith('*')) {
+                        return <em key={index} className="italic">{part.slice(1, -1)}</em>;
+                    }
+                    return part;
+                });
+            };
+
+            return (
+                <div className={`mb-6 rounded-2xl border ${theme.cardBorder} ${theme.cardBg} backdrop-blur-lg shadow-xl overflow-hidden transition-all duration-300 no-print`}>
+                    <button 
+                        onClick={onToggle}
+                        className="w-full p-6 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-xl bg-gradient-to-br ${theme.iconBg} ${theme.text} shadow-inner border border-white/10`}>
+                                {Icon && <Icon size={24} />}
+                            </div>
+                            <div>
+                                <h3 className={`text-xl font-bold ${theme.text} tracking-tight`}>{title}</h3>
+                                <p className={`text-sm ${theme.mutedText} font-medium`}>{subtitle}</p>
+                            </div>
+                        </div>
+                        {isOpen ? <IconChevronUp className="opacity-50" /> : <IconChevronDown className="opacity-50" />}
+                    </button>
+                    
+                    {isOpen && (
+                        <div className="border-t border-white/10 animate-in slide-in-from-top-4 duration-300">
+                            {/* Tabs */}
+                            {noteKey && (
+                                <div className="flex border-b border-white/10">
+                                    <button 
+                                        onClick={() => setActiveTab('track')}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'track' ? `bg-white/10 ${theme.text}` : `${theme.mutedText} hover:bg-white/5`}`}
+                                    >
+                                        Tracker
+                                    </button>
+                                    <button 
+                                        onClick={() => setActiveTab('notes')}
+                                        className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === 'notes' ? `bg-white/10 ${theme.text}` : `${theme.mutedText} hover:bg-white/5`}`}
+                                    >
+                                        <IconInfo size={16} /> Notes
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="p-6 pt-6">
+                                {activeTab === 'track' ? (
+                                    <div className="space-y-6">
+                                        {children}
+                                    </div>
+                                ) : (
+                                    <div className={`prose prose-invert prose-sm max-w-none ${theme.mutedText} whitespace-pre-wrap`}>
+                                        {NOTES[noteKey].split('\n').map((line, i) => {
+                                            if (line.startsWith('###')) return <h3 key={i} className={`text-lg font-bold ${theme.text} mt-4 mb-2`}>{line.replace('### ', '')}</h3>;
+                                            if (line.startsWith('•')) return <div key={i} className="pl-4 mb-1 border-l-2 border-white/10">{parseContent(line)}</div>;
+                                            return <p key={i} className="mb-2">{parseContent(line)}</p>;
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SectionHeader = ({ title, theme }) => (
+            <h4 className={`text-lg font-semibold ${theme.text} opacity-90 mb-3 flex items-center gap-2 border-b border-white/10 pb-2`}>
+                {title}
+            </h4>
+        );
+
+        const InputField = ({ label, value, onChange, placeholder, type = "text", theme }) => (
+            <div className="space-y-1">
+                <label className={`text-xs font-medium ${theme.mutedText} uppercase tracking-wider ml-1`}>{label}</label>
+                <input
+                    type={type}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className={`w-full ${theme.inputBg} border ${theme.cardBorder} rounded-xl px-4 py-3 ${theme.text} placeholder:opacity-30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all backdrop-blur-sm`}
+                />
+            </div>
+        );
+
+        const TextArea = ({ label, value, onChange, placeholder, theme }) => (
+            <div className="space-y-1">
+                <label className={`text-xs font-medium ${theme.mutedText} uppercase tracking-wider ml-1`}>{label}</label>
+                <textarea
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    rows={4}
+                    className={`w-full ${theme.inputBg} border ${theme.cardBorder} rounded-xl px-4 py-3 ${theme.text} placeholder:opacity-30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all backdrop-blur-sm resize-none`}
+                />
+            </div>
+        );
+
+        const DayTracker = ({ days, setDays, label, theme }) => {
+            const toggleDay = (index) => {
+                const newDays = [...days];
+                newDays[index] = !newDays[index];
+                setDays(newDays);
+            };
+
+            return (
+                <div className={`${theme.inputBg} rounded-xl p-4 border ${theme.cardBorder}`}>
+                    <div className="flex justify-between items-center mb-3">
+                        <span className={`text-sm font-medium ${theme.text} opacity-80`}>{label}</span>
+                        <span className={`text-xs ${theme.mutedText} bg-white/5 px-2 py-1 rounded-full`}>
+                            {days.filter(Boolean).length} / 7 Days
+                        </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                        {days.map((completed, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => toggleDay(idx)}
+                                className={`
+                                    flex-1 aspect-square rounded-full flex items-center justify-center transition-all duration-300
+                                    ${completed 
+                                        ? `${theme.checkColor} scale-105` 
+                                        : `bg-white/5 hover:bg-white/10 border ${theme.cardBorder}`}
+                                `}
+                            >
+                                {completed ? <IconCheckCircle size={16} className="text-white" /> : <span className="text-xs opacity-30">{idx + 1}</span>}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const HappinessScale = ({ title, scores, setScores, theme }) => (
+            <div className={`space-y-4 ${theme.cardBg} p-4 rounded-xl border ${theme.cardBorder}`}>
+                <h5 className={`font-medium ${theme.text} opacity-90`}>{title}</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.keys(scores).map((key) => (
+                        <div key={key} className="flex items-center justify-between gap-4">
+                            <label className={`text-sm ${theme.mutedText} capitalize`}>{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="10"
+                                value={scores[key]}
+                                onChange={(e) => setScores({ ...scores, [key]: e.target.value })}
+                                className={`w-20 ${theme.inputBg} border ${theme.cardBorder} rounded-lg px-3 py-1 ${theme.text} text-center focus:outline-none focus:ring-1 focus:ring-white/40`}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        // --- MAIN APP ---
+
+        const App = () => {
+            // State
+            const [activeWeek, setActiveWeek] = useState(1);
+            const [currentThemeKey, setCurrentThemeKey] = useState('starry');
+            const [showThemeMenu, setShowThemeMenu] = useState(false);
+            
+            const theme = THEMES[currentThemeKey];
+
+            // Update Body Background directly to avoid flashing
+            useEffect(() => {
+                document.body.className = `${theme.bg} ${theme.text} selection:bg-pink-500/30 font-sans overflow-x-hidden min-h-screen transition-colors duration-500`;
+                // Update meta theme color for mobile browsers
+                const metaThemeColor = document.querySelector("meta[name=theme-color]");
+                if(metaThemeColor) {
+                    // Approximate hex codes for mobile browser bars
+                    const colorMap = { 
+                        starry: '#0f172a', 
+                        miami: '#0f172a', 
+                        forest: '#052e16', 
+                        sunset: '#4a0404',
+                        oceanic: '#082f49',
+                        amethyst: '#2e1065',
+                        rose: '#4c0519',
+                        toxic: '#000000',
+                        aurora: '#042f2e',
+                        eclipse: '#0a0a0a'
+                    };
+                    metaThemeColor.setAttribute("content", colorMap[currentThemeKey] || '#0f172a');
+                }
+            }, [currentThemeKey, theme]);
+
+            const [data, setData] = useState({
+                baseline: {
+                    perma: { positiveEmotions: '', engagement: '', relationships: '', meaning: '', accomplishment: '', health: '', negativeEmotions: '', loneliness: '', overallWellBeing: '' },
+                    authenticHappiness: '',
+                    howHappyScale: ''
+                },
+                week1: {
+                    strengths: ['', '', '', ''],
+                    tracking: Array(7).fill(false)
+                },
+                week2: {
+                    savoring: Array(7).fill(false),
+                    gratitude: Array(7).fill(false)
+                },
+                week3: {
+                    kindness: Array(7).fill(false),
+                    connection: Array(7).fill(false)
+                },
+                week4: {
+                    exercise: Array(7).fill(false),
+                    sleep: Array(7).fill(false)
+                },
+                week5: {
+                    meditate: Array(7).fill(false),
+                    letter: '',
+                    visit: false
+                },
+                finalChallenge: {
+                    selectedRewirement: '',
+                    plan: { what: '', when: '', where: '', who: '' },
+                    week1: Array(7).fill(false),
+                    week2: Array(7).fill(false),
+                    week3: Array(7).fill(false),
+                    week4: Array(7).fill(false)
+                },
+                post: {
+                    perma: { positiveEmotions: '', engagement: '', relationships: '', meaning: '', accomplishment: '', health: '', negativeEmotions: '', loneliness: '', overallWellBeing: '' },
+                    authenticHappiness: '',
+                    howHappyScale: ''
+                }
+            });
+
+            // Persistence
+            useEffect(() => {
+                const saved = localStorage.getItem('wellbeing_workbook');
+                const savedTheme = localStorage.getItem('wellbeing_theme');
+                if (saved) {
+                    try {
+                        setData(JSON.parse(saved));
+                    } catch (e) {
+                        console.error("Failed to load data", e);
+                    }
+                }
+                if (savedTheme && THEMES[savedTheme]) {
+                    setCurrentThemeKey(savedTheme);
+                }
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('wellbeing_workbook', JSON.stringify(data));
+            }, [data]);
+            
+            useEffect(() => {
+                localStorage.setItem('wellbeing_theme', currentThemeKey);
+            }, [currentThemeKey]);
+
+            // Helpers
+            const updateData = (path, value) => {
+                setData(prev => {
+                    const newData = { ...prev };
+                    let current = newData;
+                    const keys = path.split('.');
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        current = current[keys[i]];
+                    }
+                    current[keys[keys.length - 1]] = value;
+                    return newData;
+                });
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            return (
+                <div className="relative">
+                    {/* Print View (Hidden until print) */}
+                    <div className="print-only bg-white text-black p-12 max-w-4xl mx-auto font-serif">
+                        <h1 className="text-3xl font-bold mb-2">The Science of Well-Being: Rewirement Workbook</h1>
+                        <p className="text-gray-600 mb-2">Yale University - Coursera Assignment Tracker</p>
+                        <p className="text-gray-600 mb-8">Submission Report</p>
+                        
+                        <div className="space-y-8">
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Baseline Happiness</h2>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <p>Authentic Happiness Score: <strong>{data.baseline.authenticHappiness || 'N/A'}</strong></p>
+                                    <p>1-5 Happy Scale: <strong>{data.baseline.howHappyScale || 'N/A'}</strong></p>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 1: Signature Strengths</h2>
+                                <p className="mb-2"><strong>Top Strengths:</strong> {data.week1.strengths.filter(s=>s).join(', ') || 'None listed'}</p>
+                                <p><strong>Progress:</strong> {data.week1.tracking.filter(Boolean).length} / 7 days completed</p>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 2: Savoring & Gratitude</h2>
+                                <p><strong>Savoring:</strong> {data.week2.savoring.filter(Boolean).length} / 7 days</p>
+                                <p><strong>Gratitude Journal:</strong> {data.week2.gratitude.filter(Boolean).length} / 7 days</p>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 3: Kindness & Connection</h2>
+                                <p><strong>Acts of Kindness:</strong> {data.week3.kindness.filter(Boolean).length} / 7 days</p>
+                                <p><strong>Social Connections:</strong> {data.week3.connection.filter(Boolean).length} / 7 days</p>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 4: Exercise & Sleep</h2>
+                                <p><strong>Exercise:</strong> {data.week4.exercise.filter(Boolean).length} / 7 days</p>
+                                <p><strong>Sleep (7+ hrs):</strong> {data.week4.sleep.filter(Boolean).length} / 7 days</p>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 5: Meditation & Gratitude Letter</h2>
+                                <p><strong>Meditation:</strong> {data.week5.meditate.filter(Boolean).length} / 7 days</p>
+                                <p><strong>Visit Completed:</strong> {data.week5.visit ? 'Yes' : 'No'}</p>
+                                <div className="mt-2 p-4 border border-gray-200 rounded bg-gray-50">
+                                    <p className="italic text-gray-700 whitespace-pre-wrap">{data.week5.letter || "No letter text saved."}</p>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Final Challenge (Weeks 7-10)</h2>
+                                <p className="mb-2"><strong>Chosen Habit:</strong> {data.finalChallenge.selectedRewirement}</p>
+                                <p className="mb-4 text-sm text-gray-600">
+                                    Plan: {data.finalChallenge.plan.what} {data.finalChallenge.plan.when} {data.finalChallenge.plan.where} with {data.finalChallenge.plan.who}
+                                </p>
+                                <div className="flex gap-8">
+                                    <p>Week 1: {data.finalChallenge.week1.filter(Boolean).length}/7</p>
+                                    <p>Week 2: {data.finalChallenge.week2.filter(Boolean).length}/7</p>
+                                    <p>Week 3: {data.finalChallenge.week3.filter(Boolean).length}/7</p>
+                                    <p>Week 4: {data.finalChallenge.week4.filter(Boolean).length}/7</p>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xl font-bold border-b border-black mb-4">Final Measurement</h2>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <p>Authentic Happiness Score: <strong>{data.post.authenticHappiness || 'N/A'}</strong></p>
+                                    <p>1-5 Happy Scale: <strong>{data.post.howHappyScale || 'N/A'}</strong></p>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+
+                    {/* Interactive App View */}
+                    <div className="no-print">
+                        {/* Dynamic Background */}
+                        <div className="fixed inset-0 z-0">
+                            <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] ${theme.blob1} rounded-full blur-[120px] animate-pulse-slow transition-colors duration-1000`}></div>
+                            <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] ${theme.blob2} rounded-full blur-[120px] animate-pulse-slow transition-colors duration-1000`} style={{animationDelay: '1s'}}></div>
+                            <div className={`absolute top-[20%] right-[20%] w-[30%] h-[30%] ${theme.blob3} rounded-full blur-[100px] animate-float transition-colors duration-1000`}></div>
+                        </div>
+
+                        <div className="relative z-10 max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-12 pb-24">
+                            
+                            {/* Header */}
+                            <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4">
+                                <div>
+                                    <h1 className={`text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r ${theme.accent} tracking-tight`}>
+                                        Rewirement
+                                    </h1>
+                                    <p className={`${theme.mutedText} mt-2 text-lg`}>Yale "The Science of Well-Being" Tracker</p>
+                                </div>
+                                <div className="flex gap-2 self-end">
+                                     <div className="relative">
+                                        <button 
+                                            onClick={() => setShowThemeMenu(!showThemeMenu)}
+                                            className={`flex items-center gap-2 px-4 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md`}
+                                        >
+                                            <IconPalette size={16} />
+                                            <span className="hidden sm:inline">Theme</span>
+                                        </button>
+                                        
+                                        {showThemeMenu && (
+                                            <div className={`absolute right-0 mt-2 w-48 py-2 rounded-xl shadow-2xl ${theme.cardBg} backdrop-blur-xl border border-white/10 z-50 h-64 overflow-y-auto scrollbar-hide`}>
+                                                {Object.keys(THEMES).map(key => (
+                                                    <button
+                                                        key={key}
+                                                        onClick={() => { setCurrentThemeKey(key); setShowThemeMenu(false); }}
+                                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 transition-colors ${currentThemeKey === key ? 'font-bold text-white' : theme.mutedText}`}
+                                                    >
+                                                        {THEMES[key].name}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button 
+                                        onClick={handlePrint}
+                                        className={`flex items-center gap-2 px-4 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md group`}
+                                    >
+                                        <IconPrinter size={16} className="group-hover:scale-110 transition-transform" />
+                                        <span className="hidden sm:inline">Report</span>
+                                    </button>
+                                </div>
+                            </header>
+
+                            {/* Content Stack */}
+                            <div className="space-y-4">
+
+                                {/* BASELINE */}
+                                <WeekCard 
+                                    title="Baseline Measurement" 
+                                    subtitle="Week 1 - Starting Point"
+                                    icon={IconActivity}
+                                    isOpen={activeWeek === 1}
+                                    onToggle={() => setActiveWeek(activeWeek === 1 ? 0 : 1)}
+                                    theme={theme}
+                                    noteKey="week1"
+                                >
+                                    <div className={`text-sm ${theme.mutedText} mb-4 bg-white/5 p-3 rounded-lg border border-white/10`}>
+                                        Measure your happiness before starting. Use the PERMA Profiler or Authentic Happiness Inventory resources from the course, or use the simple 1-5 scale.
+                                    </div>
+                                    <HappinessScale 
+                                        title="PERMA Profiler Scores (0-10)" 
+                                        scores={data.baseline.perma} 
+                                        setScores={(val) => updateData('baseline.perma', val)}
+                                        theme={theme}
+                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <InputField theme={theme} label="Authentic Happiness Score" placeholder="Overall Score" value={data.baseline.authenticHappiness} onChange={(v) => updateData('baseline.authenticHappiness', v)} type="number" />
+                                        <InputField theme={theme} label="How Happy Scale (1-5)" placeholder="1-5" value={data.baseline.howHappyScale} onChange={(v) => updateData('baseline.howHappyScale', v)} type="number" />
+                                    </div>
+                                </WeekCard>
+
+                                {/* WEEK 1 */}
+                                <WeekCard 
+                                    title="Signature Strengths" 
+                                    subtitle="Week 1"
+                                    icon={IconSun}
+                                    isOpen={activeWeek === 2}
+                                    onToggle={() => setActiveWeek(activeWeek === 2 ? 0 : 2)}
+                                    theme={theme}
+                                    noteKey="week1"
+                                >
+                                    <SectionHeader title="Your Top 4 Strengths" theme={theme} />
+                                    <div className="grid grid-cols-1 gap-3 mb-6">
+                                        {data.week1.strengths.map((strength, i) => (
+                                            <InputField 
+                                                key={i} 
+                                                label={`Strength ${i+1}`} 
+                                                value={strength} 
+                                                onChange={(v) => {
+                                                    const newS = [...data.week1.strengths];
+                                                    newS[i] = v;
+                                                    updateData('week1.strengths', newS);
+                                                }} 
+                                                theme={theme}
+                                            />
+                                        ))}
+                                    </div>
+                                    <SectionHeader title="Daily Tracking" theme={theme} />
+                                    <DayTracker label="Used a strength in a new way" days={data.week1.tracking} setDays={(val) => updateData('week1.tracking', val)} theme={theme} />
+                                </WeekCard>
+
+                                {/* WEEK 2 */}
+                                <WeekCard 
+                                    title="Savoring & Gratitude" 
+                                    subtitle="Week 2"
+                                    icon={IconHeart}
+                                    isOpen={activeWeek === 3}
+                                    onToggle={() => setActiveWeek(activeWeek === 3 ? 0 : 3)}
+                                    theme={theme}
+                                    noteKey="week2"
+                                >
+                                    <div className="space-y-6">
+                                        <div>
+                                            <SectionHeader title="Savoring" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>Pick one experience to truly savor each day (e.g., a shower, a meal, a walk). Step outside the experience to appreciate it.</p>
+                                            <DayTracker label="Savored an experience" days={data.week2.savoring} setDays={(val) => updateData('week2.savoring', val)} theme={theme} />
+                                        </div>
+                                        <div>
+                                            <SectionHeader title="Gratitude Journal" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>Write down 5 things you are grateful for every night.</p>
+                                            <DayTracker label="Journal entry completed" days={data.week2.gratitude} setDays={(val) => updateData('week2.gratitude', val)} theme={theme} />
+                                        </div>
+                                    </div>
+                                </WeekCard>
+
+                                {/* WEEK 3 */}
+                                <WeekCard 
+                                    title="Kindness & Connection" 
+                                    subtitle="Week 3"
+                                    icon={IconSmile}
+                                    isOpen={activeWeek === 4}
+                                    onToggle={() => setActiveWeek(activeWeek === 4 ? 0 : 4)}
+                                    theme={theme}
+                                    noteKey="week3"
+                                >
+                                    <div className="space-y-6">
+                                        <div>
+                                            <SectionHeader title="Random Acts of Kindness" theme={theme} />
+                                            <DayTracker label="Performed an act of kindness" days={data.week3.kindness} setDays={(val) => updateData('week3.kindness', val)} theme={theme} />
+                                        </div>
+                                        <div>
+                                            <SectionHeader title="Social Connection" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>Make one new social connection per day (even small talk counts).</p>
+                                            <DayTracker label="Made a social connection" days={data.week3.connection} setDays={(val) => updateData('week3.connection', val)} theme={theme} />
+                                        </div>
+                                    </div>
+                                </WeekCard>
+
+                                {/* WEEK 4 */}
+                                <WeekCard 
+                                    title="Exercise & Sleep" 
+                                    subtitle="Week 4"
+                                    icon={IconActivity}
+                                    isOpen={activeWeek === 5}
+                                    onToggle={() => setActiveWeek(activeWeek === 5 ? 0 : 5)}
+                                    theme={theme}
+                                    noteKey="week4"
+                                >
+                                    <div className="space-y-6">
+                                        <div>
+                                            <SectionHeader title="Exercise" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>At least 30 minutes of movement.</p>
+                                            <DayTracker label="30+ mins exercise" days={data.week4.exercise} setDays={(val) => updateData('week4.exercise', val)} theme={theme} />
+                                        </div>
+                                        <div>
+                                            <SectionHeader title="Sleep" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>Aim for 7+ hours of sleep, at least 4 nights a week.</p>
+                                            <DayTracker label="Got 7+ hours sleep" days={data.week4.sleep} setDays={(val) => updateData('week4.sleep', val)} theme={theme} />
+                                        </div>
+                                    </div>
+                                </WeekCard>
+
+                                {/* WEEK 5 */}
+                                <WeekCard 
+                                    title="Meditation & Letter" 
+                                    subtitle="Week 5"
+                                    icon={IconMoon}
+                                    isOpen={activeWeek === 6}
+                                    onToggle={() => setActiveWeek(activeWeek === 6 ? 0 : 6)}
+                                    theme={theme}
+                                    noteKey="week5"
+                                >
+                                    <div className="space-y-6">
+                                        <div>
+                                            <SectionHeader title="Meditation" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>At least 10 minutes per day.</p>
+                                            <DayTracker label="Meditated 10+ mins" days={data.week5.meditate} setDays={(val) => updateData('week5.meditate', val)} theme={theme} />
+                                        </div>
+                                        <div>
+                                            <SectionHeader title="Gratitude Letter" theme={theme} />
+                                            <p className={`text-sm ${theme.mutedText} mb-4`}>Write a heartfelt letter to someone who made a difference in your life.</p>
+                                            <TextArea 
+                                                label="Draft Your Letter" 
+                                                placeholder="Dear..." 
+                                                value={data.week5.letter}
+                                                onChange={(v) => updateData('week5.letter', v)}
+                                                theme={theme}
+                                            />
+                                            <div className={`mt-4 flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10`}>
+                                                <button 
+                                                    onClick={() => updateData('week5.visit', !data.week5.visit)}
+                                                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${data.week5.visit ? `${theme.checkColor} border-transparent` : 'border-white/30'}`}
+                                                >
+                                                    {data.week5.visit && <IconCheckCircle size={14} />}
+                                                </button>
+                                                <span className={`text-sm font-medium ${theme.text}`}>I have delivered/read this letter to the person.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </WeekCard>
+
+                                {/* FINAL CHALLENGE */}
+                                <WeekCard 
+                                    title="Final Challenge" 
+                                    subtitle="Weeks 7-10"
+                                    icon={IconBookOpen}
+                                    isOpen={activeWeek === 7}
+                                    onToggle={() => setActiveWeek(activeWeek === 7 ? 0 : 7)}
+                                    theme={theme}
+                                    noteKey="final"
+                                >
+                                    <div className={`bg-gradient-to-r ${theme.iconBg} p-4 rounded-xl border border-white/10 mb-6`}>
+                                        <p className={`text-sm ${theme.text} opacity-90`}>
+                                            Pick <strong>one</strong> rewirement that resonated with you (e.g., Savoring, Exercise) and commit to it for 4 full weeks.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <InputField 
+                                            label="My Chosen Rewirement" 
+                                            placeholder="e.g. Daily Meditation" 
+                                            value={data.finalChallenge.selectedRewirement}
+                                            onChange={(v) => updateData('finalChallenge.selectedRewirement', v)}
+                                            theme={theme}
+                                        />
+                                        
+                                        <div>
+                                            <SectionHeader title="The Plan" theme={theme} />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <InputField label="What" value={data.finalChallenge.plan.what} onChange={(v) => updateData('finalChallenge.plan.what', v)} theme={theme} />
+                                                <InputField label="When" value={data.finalChallenge.plan.when} onChange={(v) => updateData('finalChallenge.plan.when', v)} theme={theme} />
+                                                <InputField label="Where" value={data.finalChallenge.plan.where} onChange={(v) => updateData('finalChallenge.plan.where', v)} theme={theme} />
+                                                <InputField label="Who With" value={data.finalChallenge.plan.who} onChange={(v) => updateData('finalChallenge.plan.who', v)} theme={theme} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <DayTracker label="Week 1 Progress" days={data.finalChallenge.week1} setDays={(val) => updateData('finalChallenge.week1', val)} theme={theme} />
+                                            <DayTracker label="Week 2 Progress" days={data.finalChallenge.week2} setDays={(val) => updateData('finalChallenge.week2', val)} theme={theme} />
+                                            <DayTracker label="Week 3 Progress" days={data.finalChallenge.week3} setDays={(val) => updateData('finalChallenge.week3', val)} theme={theme} />
+                                            <DayTracker label="Week 4 Progress" days={data.finalChallenge.week4} setDays={(val) => updateData('finalChallenge.week4', val)} theme={theme} />
+                                        </div>
+                                    </div>
+                                </WeekCard>
+
+                                {/* POST MEASUREMENT */}
+                                <WeekCard 
+                                    title="Final Measurement" 
+                                    subtitle="Week 10 - Results"
+                                    icon={IconActivity}
+                                    isOpen={activeWeek === 8}
+                                    onToggle={() => setActiveWeek(activeWeek === 8 ? 0 : 8)}
+                                    theme={theme}
+                                >
+                                    <div className={`text-sm ${theme.mutedText} mb-4 bg-white/5 p-3 rounded-lg border border-white/10`}>
+                                        Compare these scores to your Week 1 baseline to see your growth.
+                                    </div>
+                                    <HappinessScale 
+                                        title="PERMA Profiler Scores (0-10)" 
+                                        scores={data.post.perma} 
+                                        setScores={(val) => updateData('post.perma', val)}
+                                        theme={theme}
+                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <InputField label="Authentic Happiness Score" placeholder="Overall Score" value={data.post.authenticHappiness} onChange={(v) => updateData('post.authenticHappiness', v)} type="number" theme={theme} />
+                                        <InputField label="How Happy Scale (1-5)" placeholder="1-5" value={data.post.howHappyScale} onChange={(v) => updateData('post.howHappyScale', v)} type="number" theme={theme} />
+                                    </div>
+                                </WeekCard>
+
+                            </div>
+                            
+                            <div className={`mt-12 text-center ${theme.mutedText} opacity-50 text-sm`}>
+                                <p>Data is saved automatically to your browser.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
