@@ -34,10 +34,18 @@
         
         /* Print Styles */
         @media print {
-            body { background: white !important; color: black !important; }
+            body { 
+                background: white !important; 
+                color: black !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             input, textarea { border: 1px solid #ccc !important; background: white !important; color: black !important; }
+            
+            /* Ensure page breaks don't cut content awkwardly */
+            section { break-inside: avoid; }
         }
         .print-only { display: none; }
         
@@ -94,6 +102,18 @@
         );
         const IconInfo = ({ size = 24, className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        );
+        const IconDatabase = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        );
+        const IconZap = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        );
+        const IconTarget = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        );
+        const IconUsers = ({ size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         );
 
 
@@ -226,13 +246,13 @@
                 mutedText: "text-teal-200/70",
                 blob1: "bg-teal-600/30",
                 blob2: "bg-indigo-600/30",
-                blob3: "bg-emerald-500/20",
+                blob3: "bg-yellow-500/20", // Added yellow tint to blob
                 cardBg: "bg-white/10",
                 cardBorder: "border-teal-400/20",
                 inputBg: "bg-black/20",
-                accent: "from-teal-200 via-indigo-200 to-emerald-200",
-                iconBg: "from-teal-500/20 to-indigo-500/20",
-                checkColor: "bg-gradient-to-br from-teal-400 to-indigo-500 shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+                accent: "from-teal-200 via-yellow-200 to-emerald-200", // Added yellow to accent
+                iconBg: "from-teal-500/20 to-yellow-500/20", // Added yellow to icon bg
+                checkColor: "bg-gradient-to-br from-yellow-400 to-teal-500 shadow-[0_0_15px_rgba(253,224,71,0.4)]" // Yellow-Teal gradient
             },
             eclipse: {
                 name: "Eclipse",
@@ -251,93 +271,161 @@
             }
         };
 
-        // --- NOTES CONTENT (From PDF) ---
+        // --- SELF-CONTAINED NOTES DATA ---
         const NOTES = {
-            week1: `### Measure Your Happiness 📊
-• **Go back to the course** under "Your Rewirements for this Week" for resources on how to measure your happiness using validated psychological instruments.
-• By measuring your happiness at the start of the course, your score will act as a **baseline measurement** to compare to later on.
-• **Option 3:** If you do not want to take surveys online, answer this: *On a scale of 1-5, how happy are you with your life right now?*
-
-### Use Your Signature Strengths 💪
-• **Discover:** Go back to the course to find resources on how to determine your signature strengths.
-• **Action:** Once discovered, try to use your top strengths in **new ways every day** for a week.`,
-
-            week2: `### Savoring 🍦
-• **Definition:** Savoring is the act of stepping outside of an experience to review and appreciate it. It intensifies and lengthens positive emotions.
-• **Challenge:** Pick **one experience to truly savor each day**. (e.g., a shower, a delicious meal, a walk).
-• **Techniques:** - Share the experience with another person.
-  - Think about how lucky you are to enjoy it.
-  - Keep a souvenir or photo.
-  - Stay in the present moment.
-
-### Daily Gratitude Journal 🙏
-• **Research:** Taking time to experience gratitude can make you happier and healthier.
-• **Challenge:** Take 5-10 minutes each night to write down **five things for which you are grateful**.
-• **Tip:** Focus on them and actually write them down. Be mindful of what you are writing.`,
-
-            week3: `### Random Acts of Kindness 💖
-• **Insight:** Happy people are motivated to do kind things for others.
-• **Challenge:** Perform **seven acts of kindness** beyond what you normally do this week.
-• **Examples:** Help a colleague, give to a cause, say something kind to a stranger, write a thank you note, give blood.
-
-### Social Connection 🤝
-• **Insight:** Happy people spend more time with others. Talking to a stranger can boost mood more than expected.
-• **Challenge:** Make **one new social connection per day**.
-• **Examples:** 5-minute chat on public transport, ask a coworker about their day, chat to a barista.
-• **Bonus:** At least once this week, take a whole hour to connect with someone you care about.`,
-
-            week4: `### Exercise 🏃‍♀️
-• **Goal:** At least **30 minutes a day** of movement.
-• **Why:** Boosts mood and health.
-• **Ideas:** Gym, online yoga class, dancing to cheesy pop songs.
-• **Note:** Notice how much better you feel after moving.
-
-### Sleep 😴
-• **Goal:** Aim for **7+ hours of sleep** for at least 4 nights this week.
-• **Why:** Sleep improves mood physically and mentally.
-• **Hygiene:** No devices before bed, avoid caffeine/alcohol on these days.`,
-
-            week5: `### Meditate 🧘‍♂️
-• **Goal:** **10 minutes per day** of meditation.
-• **Definition:** Intentionally turning attention away from distracting thoughts toward a single point of reference (breath, sensation, etc.).
-• **Benefits:** Positive mood, concentration, social connection.
-• **Note:** It's about building a skill, not just the session itself.
-
-### Gratitude Letter & Visit 💌
-• **Challenge:** Write a letter of gratitude to someone who made a big difference in your life but whom you never properly thanked.
-• **Length:** At least 300 words.
-• **The Visit:** Deliver it to them. Ideally, read it to them in person (or phone/Skype). 
-• **Impact:** One of the most powerful tools for increasing happiness.`,
-
-            final: `### Final Rewirement Challenge (Weeks 7-10) 🏆
-**The Goal:** Pick **one** rewirement that resonated with you and practice it in earnest for 4 weeks to make it a long-term habit.
-
-### Pro Tips for Success:
-• **Week 7:** Make a plan! (What, When, Where, Who).
-• **Week 8:** Socially commit. Tell someone about the change you are trying to make.
-• **Week 9:** Design your environment. Remove barriers and add cues to help you succeed.
-• **Week 10:** Have a growth mindset. Focus on progress, not perfection.`
+            week1: [
+                {
+                    title: "Measuring Happiness",
+                    icon: IconActivity,
+                    content: "To establish a baseline, measure your happiness using a validated scale. If you don't have access to the PERMA Profiler, use a simple self-assessment:\n\n**On a scale of 1-5, how happy are you with your life right now?**\n\nThe goal is to have a concrete 'before' number to compare with your 'after' result in Week 10."
+                },
+                {
+                    title: "The PERMA Model",
+                    icon: IconTarget,
+                    content: "Happiness isn't just one thing. It's often broken down into 5 pillars (PERMA):\n\n**P**ositive Emotions (joy, gratitude)\n**E**ngagement (flow, losing track of time)\n**R**elationships (connection, support)\n**M**eaning (purpose, serving something bigger)\n**A**ccomplishment (goals, mastery)"
+                },
+                {
+                    title: "Signature Strengths",
+                    icon: IconZap,
+                    content: "Your 'Signature Strengths' are the character traits that feel most essential to who you are (e.g., curiosity, kindness, bravery).\n\n**The Challenge:** Identify your top 4 strengths and use one of them in a **new way** every day for 7 days. This builds confidence and flow."
+                }
+            ],
+            week2: [
+                {
+                    title: "Savoring",
+                    icon: IconSun,
+                    content: "Savoring is the act of stepping outside of an experience to review and appreciate it. It forces you to slow down and locks in the memory.\n\n**Techniques:**\n• **Share it:** Tell someone else about the moment.\n• **Memory Building:** Take a mental (or physical) photo.\n• **Self-Congratulation:** Remind yourself how lucky you are.\n• **Sharpen Perception:** Focus on specific sensory details (smell, sound)."
+                },
+                {
+                    title: "Daily Gratitude Journal",
+                    icon: IconBookOpen,
+                    content: "Gratitude rewires your brain to scan for the positive.\n\n**The Challenge:** Every night, write down **5 things** you are grateful for. They can be huge (promotion) or tiny (good coffee).\n\n**Key:** Don't just list them. Relive the feeling of *why* you are grateful as you write."
+                }
+            ],
+            week3: [
+                {
+                    title: "Random Acts of Kindness",
+                    icon: IconHeart,
+                    content: "Happy people are altruistic. Doing for others boosts your own mood more than doing for yourself.\n\n**The Challenge:** Perform **7 acts of kindness** this week. They can be small: holding a door, buying a coffee for a stranger, sending an encouraging text, or donating to a cause."
+                },
+                {
+                    title: "Social Connection",
+                    icon: IconUsers,
+                    content: "Social connection is the strongest predictor of happiness. Even brief interactions with strangers matter.\n\n**The Challenge:** Make one new connection per day (chat with a barista, talk to someone on the bus).\n\n**Deepen:** Once this week, spend a solid hour connecting with someone you care about deeply."
+                }
+            ],
+            week4: [
+                {
+                    title: "Exercise",
+                    icon: IconActivity,
+                    content: "Exercise is not just for the body; it's a potent antidepressant.\n\n**The Goal:** Move your body for at least **30 minutes** a day.\n\n**What counts?** Anything. Walking, yoga, dancing in your room, gym. Just get your heart rate up and notice the mood boost afterwards."
+                },
+                {
+                    title: "Sleep Hygiene",
+                    icon: IconMoon,
+                    content: "Sleep deprivations kills mood and cognitive function.\n\n**The Goal:** Get at least **7 hours** of sleep for 4 nights this week.\n\n**How:**\n• No screens 30 mins before bed.\n• No caffeine after 2 PM.\n• Make your room dark and cool."
+                }
+            ],
+            week5: [
+                {
+                    title: "Meditation",
+                    icon: IconSun,
+                    content: "Meditation builds the muscle of attention, allowing you to get off the 'hedonic treadmill' of constant wanting.\n\n**The Goal:** Meditate for **10 minutes** every day.\n\n**How:** Focus on your breath. When your mind wanders (and it will), gently bring it back. That 'bringing back' is the rep."
+                },
+                {
+                    title: "Gratitude Letter",
+                    icon: IconHeart,
+                    content: "This is a 'nuclear' happiness boost. Write a letter (300+ words) to someone who changed your life but whom you never properly thanked.\n\n**The Visit:** Ideally, meet them in person or call them, and read the letter *out loud* to them. It creates a powerful shared moment."
+                }
+            ],
+            final: [
+                {
+                    title: "The Final Challenge",
+                    icon: IconTarget,
+                    content: "You've sampled the buffet of habits. Now pick **ONE** to master.\n\n**The Commitment:** Practice your chosen rewirement (e.g., meditation, savoring) for 4 weeks straight. This is about neuroplasticity—rewiring your brain for the long term."
+                },
+                {
+                    title: "WOOP Your Goal",
+                    icon: IconZap,
+                    content: "Use the WOOP method to stick to your plan:\n\n**W**ish: What do you want?\n**O**utcome: How will it feel?\n**O**bstacle: What inner thought stops you?\n**P**lan: If [obstacle], then I will [action]."
+                }
+            ]
         };
 
 
         // --- COMPONENTS ---
 
-        const WeekCard = ({ title, subtitle, children, icon: Icon, isOpen, onToggle, theme, noteKey }) => {
-            const [activeTab, setActiveTab] = useState('track'); // 'track' or 'notes'
-
+        const GlassNote = ({ title, icon: Icon, content, theme }) => {
             const parseContent = (text) => {
-                // Split by bold (**...**) and italic (*...*) markers
-                const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+                const parts = text.split(/(\*\*.*?\*\*)/g);
                 return parts.map((part, index) => {
                     if (part.startsWith('**') && part.endsWith('**')) {
                         return <strong key={index} className={`font-bold ${theme.text}`}>{part.slice(2, -2)}</strong>;
                     }
-                    if (part.startsWith('*') && part.endsWith('*')) {
-                        return <em key={index} className="italic">{part.slice(1, -1)}</em>;
-                    }
                     return part;
                 });
             };
+
+            return (
+                <div className={`p-5 rounded-xl border ${theme.cardBorder} bg-white/5 backdrop-blur-md mb-4 last:mb-0 shadow-lg hover:bg-white/10 transition-colors duration-300`}>
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.iconBg} ${theme.text} shadow-inner`}>
+                            {Icon && <Icon size={20} />}
+                        </div>
+                        <h4 className={`text-lg font-bold ${theme.text} tracking-tight`}>{title}</h4>
+                    </div>
+                    <div className={`text-sm leading-relaxed ${theme.mutedText} whitespace-pre-wrap`}>
+                        {parseContent(content)}
+                    </div>
+                </div>
+            );
+        };
+
+        const PrivacyModal = ({ onClose, theme }) => (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className={`max-w-md w-full ${theme.cardBg} ${theme.cardBorder} border p-6 rounded-2xl shadow-2xl relative backdrop-blur-xl`}>
+                    <button onClick={onClose} className={`absolute top-4 right-4 ${theme.mutedText} hover:text-white transition-colors`}>✕</button>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className={`p-2 rounded-lg bg-white/10 ${theme.text}`}>
+                            <IconDatabase size={24} />
+                        </div>
+                        <h3 className={`text-xl font-bold ${theme.text}`}>Data Privacy</h3>
+                    </div>
+                    <p className={`${theme.mutedText} mb-4 leading-relaxed`}>
+                        This application is designed with a <strong>privacy-first</strong> architecture. Here is how your data is handled:
+                    </p>
+                    <ul className={`list-disc pl-5 space-y-2 ${theme.mutedText} text-sm mb-6`}>
+                       <li><strong>Local Storage:</strong> All your entries are saved directly to your browser's internal storage on this specific device.</li>
+                       <li><strong>No Cloud:</strong> Zero data is sent to the internet, cloud servers, or any third party.</li>
+                       <li><strong>Ownership:</strong> You are the sole owner of your data. If you clear your browser's cache, the data will be reset.</li>
+                    </ul>
+                    <button onClick={onClose} className={`w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/10`}>
+                        Got it, thanks!
+                    </button>
+                </div>
+            </div>
+        );
+
+        const PrintCircle = ({ filled }) => (
+            <div className={`w-4 h-4 rounded-full border border-gray-400 print:border-gray-400 ${filled ? 'bg-green-600 border-green-700 print:bg-green-600 print:border-green-700' : 'bg-transparent'}`}></div>
+        );
+
+        const PermaTable = ({ scores, title }) => (
+            <div className="mb-6 border border-gray-200 rounded-lg overflow-hidden bg-white">
+                <div className="bg-gray-100 p-2 px-4 border-b border-gray-200 font-bold text-sm uppercase tracking-wide text-gray-700">{title}</div>
+                <div className="grid grid-cols-2 text-sm">
+                     {Object.keys(scores).map((key, i) => (
+                        <div key={key} className={`flex justify-between p-2 px-4 border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                            <span className="capitalize text-gray-600">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                            <span className="font-bold text-black">{scores[key] || '-'}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        const WeekCard = ({ title, subtitle, children, icon: Icon, isOpen, onToggle, theme, noteKey }) => {
+            const [activeTab, setActiveTab] = useState('track'); // 'track' or 'notes'
 
             return (
                 <div className={`mb-6 rounded-2xl border ${theme.cardBorder} ${theme.cardBg} backdrop-blur-lg shadow-xl overflow-hidden transition-all duration-300 no-print`}>
@@ -383,12 +471,16 @@
                                         {children}
                                     </div>
                                 ) : (
-                                    <div className={`prose prose-invert prose-sm max-w-none ${theme.mutedText} whitespace-pre-wrap`}>
-                                        {NOTES[noteKey].split('\n').map((line, i) => {
-                                            if (line.startsWith('###')) return <h3 key={i} className={`text-lg font-bold ${theme.text} mt-4 mb-2`}>{line.replace('### ', '')}</h3>;
-                                            if (line.startsWith('•')) return <div key={i} className="pl-4 mb-1 border-l-2 border-white/10">{parseContent(line)}</div>;
-                                            return <p key={i} className="mb-2">{parseContent(line)}</p>;
-                                        })}
+                                    <div className="space-y-4">
+                                        {NOTES[noteKey].map((note, idx) => (
+                                            <GlassNote 
+                                                key={idx}
+                                                title={note.title} 
+                                                icon={note.icon} 
+                                                content={note.content} 
+                                                theme={theme} 
+                                            />
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -493,6 +585,7 @@
             const [activeWeek, setActiveWeek] = useState(1);
             const [currentThemeKey, setCurrentThemeKey] = useState('starry');
             const [showThemeMenu, setShowThemeMenu] = useState(false);
+            const [showPrivacyModal, setShowPrivacyModal] = useState(false);
             
             const theme = THEMES[currentThemeKey];
 
@@ -605,75 +698,140 @@
 
             return (
                 <div className="relative">
+                    {/* Privacy Modal */}
+                    {showPrivacyModal && <PrivacyModal onClose={() => setShowPrivacyModal(false)} theme={theme} />}
+
                     {/* Print View (Hidden until print) */}
-                    <div className="print-only bg-white text-black p-12 max-w-4xl mx-auto font-serif">
-                        <h1 className="text-3xl font-bold mb-2">The Science of Well-Being: Rewirement Workbook</h1>
-                        <p className="text-gray-600 mb-2">Yale University - Coursera Assignment Tracker</p>
-                        <p className="text-gray-600 mb-8">Submission Report</p>
+                    <div className="print-only bg-white text-black p-12 max-w-4xl mx-auto font-sans">
+                        <header className="border-b-2 border-gray-800 pb-6 mb-8 flex justify-between items-end">
+                            <div>
+                                <h1 className="text-4xl font-extrabold tracking-tight mb-2 text-gray-900">Rewirement Workbook</h1>
+                                <p className="text-gray-600 font-medium text-lg">Yale "The Science of Well-Being" Tracker</p>
+                            </div>
+                            <div className="text-right text-gray-400 text-sm">
+                                Generated Report
+                            </div>
+                        </header>
                         
-                        <div className="space-y-8">
+                        <div className="grid grid-cols-1 gap-10">
+                            
+                            <div className="grid grid-cols-2 gap-8">
+                                <section>
+                                    <h2 className="text-lg font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-200 pb-1">Baseline Measurement</h2>
+                                    <PermaTable scores={data.baseline.perma} title="PERMA Profiler (Week 1)" />
+                                    <div className="text-sm bg-gray-50 p-3 rounded border border-gray-200">
+                                        <p className="flex justify-between mb-1"><span>Authentic Happiness:</span> <strong>{data.baseline.authenticHappiness || '-'}</strong></p>
+                                        <p className="flex justify-between"><span>Happy Scale (1-5):</span> <strong>{data.baseline.howHappyScale || '-'}</strong></p>
+                                    </div>
+                                </section>
+
+                                <section>
+                                    <h2 className="text-lg font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-200 pb-1">Final Measurement</h2>
+                                    <PermaTable scores={data.post.perma} title="PERMA Profiler (Week 10)" />
+                                    <div className="text-sm bg-gray-50 p-3 rounded border border-gray-200">
+                                        <p className="flex justify-between mb-1"><span>Authentic Happiness:</span> <strong>{data.post.authenticHappiness || '-'}</strong></p>
+                                        <p className="flex justify-between"><span>Happy Scale (1-5):</span> <strong>{data.post.howHappyScale || '-'}</strong></p>
+                                    </div>
+                                </section>
+                            </div>
+
                             <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Baseline Happiness</h2>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <p>Authentic Happiness Score: <strong>{data.baseline.authenticHappiness || 'N/A'}</strong></p>
-                                    <p>1-5 Happy Scale: <strong>{data.baseline.howHappyScale || 'N/A'}</strong></p>
+                                <h2 className="text-lg font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-200 pb-1">Weekly Progress</h2>
+                                
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 1: Signature Strengths</div>
+                                        <div className="flex gap-2">
+                                            {data.week1.tracking.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 2: Savoring</div>
+                                        <div className="flex gap-2">
+                                            {data.week2.savoring.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 2: Gratitude</div>
+                                        <div className="flex gap-2">
+                                            {data.week2.gratitude.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 3: Kindness</div>
+                                        <div className="flex gap-2">
+                                            {data.week3.kindness.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 3: Connection</div>
+                                        <div className="flex gap-2">
+                                            {data.week3.connection.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 4: Exercise</div>
+                                        <div className="flex gap-2">
+                                            {data.week4.exercise.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 4: Sleep</div>
+                                        <div className="flex gap-2">
+                                            {data.week4.sleep.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                        <div className="w-1/3 font-semibold text-gray-700">Week 5: Meditation</div>
+                                        <div className="flex gap-2">
+                                            {data.week5.meditate.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                    </div>
                                 </div>
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 1: Signature Strengths</h2>
-                                <p className="mb-2"><strong>Top Strengths:</strong> {data.week1.strengths.filter(s=>s).join(', ') || 'None listed'}</p>
-                                <p><strong>Progress:</strong> {data.week1.tracking.filter(Boolean).length} / 7 days completed</p>
+                                <h2 className="text-lg font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-200 pb-1">Final Challenge (Weeks 7-10)</h2>
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                                    <span className="text-gray-500 text-xs font-bold uppercase">Chosen Habit</span>
+                                    <p className="text-xl font-bold text-blue-900">{data.finalChallenge.selectedRewirement || "Not selected"}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                     <div className="p-3 bg-white border border-gray-200 rounded">
+                                        <div className="text-sm font-bold text-gray-500 mb-2">Week 1</div>
+                                        <div className="flex gap-2 justify-center">
+                                            {data.finalChallenge.week1.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                     </div>
+                                     <div className="p-3 bg-white border border-gray-200 rounded">
+                                        <div className="text-sm font-bold text-gray-500 mb-2">Week 2</div>
+                                        <div className="flex gap-2 justify-center">
+                                            {data.finalChallenge.week2.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                     </div>
+                                     <div className="p-3 bg-white border border-gray-200 rounded">
+                                        <div className="text-sm font-bold text-gray-500 mb-2">Week 3</div>
+                                        <div className="flex gap-2 justify-center">
+                                            {data.finalChallenge.week3.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                     </div>
+                                     <div className="p-3 bg-white border border-gray-200 rounded">
+                                        <div className="text-sm font-bold text-gray-500 mb-2">Week 4</div>
+                                        <div className="flex gap-2 justify-center">
+                                            {data.finalChallenge.week4.map((d, i) => <PrintCircle key={i} filled={d} />)}
+                                        </div>
+                                     </div>
+                                </div>
                             </section>
-
+                            
                             <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 2: Savoring & Gratitude</h2>
-                                <p><strong>Savoring:</strong> {data.week2.savoring.filter(Boolean).length} / 7 days</p>
-                                <p><strong>Gratitude Journal:</strong> {data.week2.gratitude.filter(Boolean).length} / 7 days</p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 3: Kindness & Connection</h2>
-                                <p><strong>Acts of Kindness:</strong> {data.week3.kindness.filter(Boolean).length} / 7 days</p>
-                                <p><strong>Social Connections:</strong> {data.week3.connection.filter(Boolean).length} / 7 days</p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 4: Exercise & Sleep</h2>
-                                <p><strong>Exercise:</strong> {data.week4.exercise.filter(Boolean).length} / 7 days</p>
-                                <p><strong>Sleep (7+ hrs):</strong> {data.week4.sleep.filter(Boolean).length} / 7 days</p>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Week 5: Meditation & Gratitude Letter</h2>
-                                <p><strong>Meditation:</strong> {data.week5.meditate.filter(Boolean).length} / 7 days</p>
-                                <p><strong>Visit Completed:</strong> {data.week5.visit ? 'Yes' : 'No'}</p>
-                                <div className="mt-2 p-4 border border-gray-200 rounded bg-gray-50">
-                                    <p className="italic text-gray-700 whitespace-pre-wrap">{data.week5.letter || "No letter text saved."}</p>
+                                <h2 className="text-lg font-bold uppercase tracking-wider text-gray-500 mb-4 border-b border-gray-200 pb-1">Notes & Letters</h2>
+                                <div className="p-4 bg-gray-50 rounded border border-gray-200 min-h-[100px]">
+                                    <span className="text-xs font-bold text-gray-400 uppercase block mb-2">Gratitude Letter</span>
+                                    <p className="text-gray-800 whitespace-pre-wrap font-serif italic">{data.week5.letter || "No letter text saved."}</p>
                                 </div>
                             </section>
 
-                            <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Final Challenge (Weeks 7-10)</h2>
-                                <p className="mb-2"><strong>Chosen Habit:</strong> {data.finalChallenge.selectedRewirement}</p>
-                                <p className="mb-4 text-sm text-gray-600">
-                                    Plan: {data.finalChallenge.plan.what} {data.finalChallenge.plan.when} {data.finalChallenge.plan.where} with {data.finalChallenge.plan.who}
-                                </p>
-                                <div className="flex gap-8">
-                                    <p>Week 1: {data.finalChallenge.week1.filter(Boolean).length}/7</p>
-                                    <p>Week 2: {data.finalChallenge.week2.filter(Boolean).length}/7</p>
-                                    <p>Week 3: {data.finalChallenge.week3.filter(Boolean).length}/7</p>
-                                    <p>Week 4: {data.finalChallenge.week4.filter(Boolean).length}/7</p>
-                                </div>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl font-bold border-b border-black mb-4">Final Measurement</h2>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <p>Authentic Happiness Score: <strong>{data.post.authenticHappiness || 'N/A'}</strong></p>
-                                    <p>1-5 Happy Scale: <strong>{data.post.howHappyScale || 'N/A'}</strong></p>
-                                </div>
-                            </section>
                         </div>
                     </div>
 
@@ -698,13 +856,24 @@
                                 </div>
                                 <div className="flex gap-2 self-end">
                                      <div className="relative">
-                                        <button 
-                                            onClick={() => setShowThemeMenu(!showThemeMenu)}
-                                            className={`flex items-center gap-2 px-4 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md`}
-                                        >
-                                            <IconPalette size={16} />
-                                            <span className="hidden sm:inline">Theme</span>
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => setShowPrivacyModal(true)}
+                                                className={`flex items-center gap-2 px-3 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md`}
+                                                title="Data Privacy Info"
+                                            >
+                                                <IconDatabase size={16} className={theme.text} />
+                                                <span className={`hidden sm:inline ${theme.text}`}>Data Info</span>
+                                            </button>
+                                            
+                                            <button 
+                                                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                                                className={`flex items-center gap-2 px-4 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md`}
+                                            >
+                                                <IconPalette size={16} className={theme.text} />
+                                                <span className={`hidden sm:inline ${theme.text}`}>Theme</span>
+                                            </button>
+                                        </div>
                                         
                                         {showThemeMenu && (
                                             <div className={`absolute right-0 mt-2 w-48 py-2 rounded-xl shadow-2xl ${theme.cardBg} backdrop-blur-xl border border-white/10 z-50 h-64 overflow-y-auto scrollbar-hide`}>
@@ -724,16 +893,14 @@
                                         onClick={handlePrint}
                                         className={`flex items-center gap-2 px-4 py-2 ${theme.cardBg} hover:bg-white/20 border border-white/10 rounded-full transition-all text-sm font-medium backdrop-blur-md group`}
                                     >
-                                        <IconPrinter size={16} className="group-hover:scale-110 transition-transform" />
-                                        <span className="hidden sm:inline">Report</span>
+                                        <IconPrinter size={16} className={`group-hover:scale-110 transition-transform ${theme.text}`} />
+                                        <span className={`hidden sm:inline ${theme.text}`}>Report</span>
                                     </button>
                                 </div>
                             </header>
 
                             {/* Content Stack */}
                             <div className="space-y-4">
-
-                                {/* BASELINE */}
                                 <WeekCard 
                                     title="Baseline Measurement" 
                                     subtitle="Week 1 - Starting Point"
@@ -758,7 +925,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* WEEK 1 */}
                                 <WeekCard 
                                     title="Signature Strengths" 
                                     subtitle="Week 1"
@@ -788,7 +954,6 @@
                                     <DayTracker label="Used a strength in a new way" days={data.week1.tracking} setDays={(val) => updateData('week1.tracking', val)} theme={theme} />
                                 </WeekCard>
 
-                                {/* WEEK 2 */}
                                 <WeekCard 
                                     title="Savoring & Gratitude" 
                                     subtitle="Week 2"
@@ -812,7 +977,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* WEEK 3 */}
                                 <WeekCard 
                                     title="Kindness & Connection" 
                                     subtitle="Week 3"
@@ -835,7 +999,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* WEEK 4 */}
                                 <WeekCard 
                                     title="Exercise & Sleep" 
                                     subtitle="Week 4"
@@ -859,7 +1022,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* WEEK 5 */}
                                 <WeekCard 
                                     title="Meditation & Letter" 
                                     subtitle="Week 5"
@@ -898,7 +1060,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* FINAL CHALLENGE */}
                                 <WeekCard 
                                     title="Final Challenge" 
                                     subtitle="Weeks 7-10"
@@ -942,7 +1103,6 @@
                                     </div>
                                 </WeekCard>
 
-                                {/* POST MEASUREMENT */}
                                 <WeekCard 
                                     title="Final Measurement" 
                                     subtitle="Week 10 - Results"
