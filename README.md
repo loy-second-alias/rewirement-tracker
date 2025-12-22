@@ -1,6 +1,8 @@
 # The Science of Well-Being: Rewirement Workbook
 
-A modern, aesthetic, and privacy-focused digital companion for the [Yale University "The Science of Well-Being"](https://www.coursera.org/learn/the-science-of-well-being) course on Coursera.
+A modern, aesthetic, and privacy-focused digital tracker based on the [Yale University "The Science of Well-Being"](https://www.coursera.org/learn/the-science-of-well-being) course on Coursera.
+
+**Note:** While this tool serves as a perfect companion for students taking the course, it is designed to be **completely standalone**. You do not need to be enrolled in the course to use this workbook effectively for tracking your happiness habits and personal growth.
 
 ## 🧠 The Big Picture
 
@@ -16,9 +18,11 @@ It bridges the gap between academic rigor and personal well-being practice by of
 
 * **Single-File Portability:** The entire app is a single `.html` file. You can email it, save it to a USB, or run it offline.
 
-* **Dynamic Themes:** Switch between four distinct atmospheres to match your mood:
+* **Dynamic Themes:** Switch between distinct atmospheres to match your mood, including:
 
-  * 🌌 **Starry Night** (Deep Purple/Blue)
+  * 🌌 **Starry Night** (Default Deep Purple/Blue)
+
+  * ✨ **Prismatic** (Shifting Pastel Dreamscape)
 
   * 🏝️ **Neon Miami** (Cyan/Pink)
 
@@ -26,7 +30,31 @@ It bridges the gap between academic rigor and personal well-being practice by of
 
   * 🌅 **Golden Sunset** (Amber/Red)
 
-* **Submission Ready:** Includes a specialized "Export Report" engine that reformats your colorful interface into a clean, academic black-and-white document for PDF submission.
+  * 🌊 **Oceanic** (Deep Teal/Cyan)
+
+  * 🔮 **Amethyst** (Rich Violet/Fuchsia)
+
+  * 🌹 **Rose Garden** (Deep Red/Pink)
+
+  * ☢️ **Toxic** (Matrix Black/Neon Green)
+
+  * 🌌 **Aurora** (Northern Lights Green/Blue/Yellow)
+
+  * 🌑 **Eclipse** (Sleek Monochrome)
+
+  * 🌫️ **Lavender Haze** (Soft Purple/Mist)
+
+  * ☕ **Coffee House** (Warm Brown/Beige)
+
+  * 🌧️ **Midnight Rain** (Moody Slate/Blue)
+
+  * 🌸 **Cherry Blossom** (Delicate Pink/Floral)
+
+  * 🧊 **Glacier** (Icy White/Cool Blue)
+
+* **Integrated Course Notes:** No need to flip back and forth between the app and the course PDF. The workbook includes self-contained "GlassNotes" for every week, explaining concepts like PERMA, Savoring, and WOOP directly within the interface.
+
+* **Submission Ready:** Includes a specialized "Export Report" engine that reformats your colorful interface into a clean, academic, print-friendly document for PDF submission.
 
 * **Mobile Optimized:** Designed to function like a native app on Android/iOS when added to the Home Screen.
 
@@ -71,7 +99,7 @@ Usually, React apps require complex build chains (Node.js, Webpack, etc.). By us
 
 2. Click the **Print/Export** icon in the top right.
 
-3. The view will strip away the colors and gradients.
+3. The view will strip away the colors and gradients, presenting a clean report with visual progress indicators.
 
 4. Select "Save as PDF" in your printer dialog.
 
